@@ -96,7 +96,7 @@
                     },
                     {
                         "name": "teams_endpoint",
-                        "value": "https://nanakwebsolutions.webhook.office.com/webhookb2/c666e167-4234-48a4-ad7f-4e6ea045d233@eeb137a3-6c42-4a87-922c-2e93db0f5f61/IncomingWebhook/ba6a3f46fadd4843a7b8fb41701712e7/f67be33a-85d8-4383-922c-4fbb473cc3e0"
+                        "value": "<your-webhook-url>"
                     },
                     {
                         "name": "trigger_description",
