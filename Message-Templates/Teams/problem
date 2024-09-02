@@ -1,0 +1,15 @@
+Problem started at {EVENT.TIME} on {EVENT.DATE}
+Problem name: {EVENT.NAME}
+Event Acknowledged: {EVENT.ACK.STATUS}
+Severity: {EVENT.SEVERITY}
+Operational data: {EVENT.OPDATA}
+Original problem ID: {EVENT.ID}
+Trigger URL: {TRIGGER.URL}
+
+Item Details:
+Item: {ITEM.KEY1}
+Item Value: {ITEM.LASTVALUE}
+
+Host Details
+Host Name: {HOST.NAME}
+Host IP: {HOST.IP}

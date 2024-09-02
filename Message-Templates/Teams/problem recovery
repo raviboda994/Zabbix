@@ -1,0 +1,13 @@
+Problem has been resolved in {EVENT.DURATION} at {EVENT.RECOVERY.TIME} on {EVENT.RECOVERY.DATE}
+Problem name: {EVENT.NAME}
+Severity: {EVENT.SEVERITY}
+Original problem ID: {EVENT.ID}
+Trigger URL: {TRIGGER.URL}
+
+Item Details:
+Item: {ITEM.KEY1}
+Item Value: {ITEM.LASTVALUE}
+
+Host Details
+Host Name: {HOST.NAME}
+Host IP: {HOST.IP}
