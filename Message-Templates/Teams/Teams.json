@@ -1,0 +1,172 @@
+{
+    "zabbix_export": {
+        "version": "7.0",
+        "media_types": [
+            {
+                "name": "MS Teams",
+                "type": "WEBHOOK",
+                "parameters": [
+                    {
+                        "name": "alert_message",
+                        "value": "{ALERT.MESSAGE}"
+                    },
+                    {
+                        "name": "alert_subject",
+                        "value": "{ALERT.SUBJECT}"
+                    },
+                    {
+                        "name": "event_date",
+                        "value": "{EVENT.DATE}"
+                    },
+                    {
+                        "name": "event_id",
+                        "value": "{EVENT.ID}"
+                    },
+                    {
+                        "name": "event_nseverity",
+                        "value": "{EVENT.NSEVERITY}"
+                    },
+                    {
+                        "name": "event_opdata",
+                        "value": "{EVENT.OPDATA}"
+                    },
+                    {
+                        "name": "event_recovery_date",
+                        "value": "{EVENT.RECOVERY.DATE}"
+                    },
+                    {
+                        "name": "event_recovery_time",
+                        "value": "{EVENT.RECOVERY.TIME}"
+                    },
+                    {
+                        "name": "event_severity",
+                        "value": "{EVENT.SEVERITY}"
+                    },
+                    {
+                        "name": "event_source",
+                        "value": "{EVENT.SOURCE}"
+                    },
+                    {
+                        "name": "event_status",
+                        "value": "{EVENT.STATUS}"
+                    },
+                    {
+                        "name": "event_tags",
+                        "value": "{EVENT.TAGS}"
+                    },
+                    {
+                        "name": "event_time",
+                        "value": "{EVENT.TIME}"
+                    },
+                    {
+                        "name": "event_update_action",
+                        "value": "{EVENT.UPDATE.ACTION}"
+                    },
+                    {
+                        "name": "event_update_date",
+                        "value": "{EVENT.UPDATE.DATE}"
+                    },
+                    {
+                        "name": "event_update_message",
+                        "value": "{EVENT.UPDATE.MESSAGE}"
+                    },
+                    {
+                        "name": "event_update_status",
+                        "value": "{EVENT.UPDATE.STATUS}"
+                    },
+                    {
+                        "name": "event_update_time",
+                        "value": "{EVENT.UPDATE.TIME}"
+                    },
+                    {
+                        "name": "event_update_user",
+                        "value": "{USER.FULLNAME}"
+                    },
+                    {
+                        "name": "event_value",
+                        "value": "{EVENT.VALUE}"
+                    },
+                    {
+                        "name": "host_ip",
+                        "value": "{HOST.IP}"
+                    },
+                    {
+                        "name": "host_name",
+                        "value": "{HOST.NAME}"
+                    },
+                    {
+                        "name": "teams_endpoint",
+                        "value": "https://nanakwebsolutions.webhook.office.com/webhookb2/c666e167-4234-48a4-ad7f-4e6ea045d233@eeb137a3-6c42-4a87-922c-2e93db0f5f61/IncomingWebhook/ba6a3f46fadd4843a7b8fb41701712e7/f67be33a-85d8-4383-922c-4fbb473cc3e0"
+                    },
+                    {
+                        "name": "trigger_description",
+                        "value": "{TRIGGER.DESCRIPTION}"
+                    },
+                    {
+                        "name": "trigger_id",
+                        "value": "{TRIGGER.ID}"
+                    },
+                    {
+                        "name": "use_default_message",
+                        "value": "true"
+                    },
+                    {
+                        "name": "zabbix_url",
+                        "value": "{$ZABBIX.URL}"
+                    }
+                ],
+                "script": "var SEVERITY_COLORS = [\n    '#97AAB3', // Not classified.\n    '#7499FF', // Information.\n    '#FFC859', // Warning.\n    '#FFA059', // Average.\n    '#E97659', // High.\n    '#E45959', // Disaster.\n    '#009900', // Resolved.\n    '#000000'  // Default.\n];\n\ntry {\n    var params = JSON.parse(value);\nconsole.log(\"params=>\",params)\n    if (typeof params.teams_endpoint !== 'string' || params.teams_endpoint.trim() === '') {\n        throw 'Cannot get teams_endpoint';\n    }\n    else if (!params.teams_endpoint.startsWith('http')) {\n        throw 'Invalid MS Teams webhook URL: ' + params.teams_endpoint;\n    }\n\n    params.zabbix_url = (params.zabbix_url.endsWith('/'))\n        ? params.zabbix_url.slice(0, -1) : params.zabbix_url;\n\n    if ([0, 1, 2, 3, 4].indexOf(parseInt(params.event_source)) === -1) {\n        throw 'Incorrect \"event_source\" parameter given: \"' + params.event_source + '\".\\nMust be 0-4.';\n    }\n\n    // Set \"use_default_message\" to true for non trigger-based events.\n    if (params.event_source !== '0') {\n        params.use_default_message = 'true';\n    }\n\n    // Check {EVENT.VALUE} for trigger-based and internal events.\n    if (params.event_value !== '0' && params.event_value !== '1'\n            && (params.event_source === '0' || params.event_source === '3')) {\n        throw 'Incorrect \"event_value\" parameter given: \"' + params.event_value + '\".\\nMust be 0 or 1.';\n    }\n\n    // Check {EVENT.UPDATE.STATUS} only for trigger-based events.\n    if (params.event_update_status !== '0' && params.event_update_status !== '1' && params.event_source === '0') {\n        throw 'Incorrect \"event_update_status\" parameter given: \"' + params.event_update_status + '\".\\nMust be 0 or 1.';\n    }\n\n    if (params.event_value == 0) {\n        params.event_nseverity = '6';\n    }\n\n    if (!SEVERITY_COLORS[params.event_nseverity]) {\n        params.event_nseverity = '7';\n    }\n\n    var request = new HttpRequest(),\n        facts = [],\n        body = {\n            themeColor: SEVERITY_COLORS[params.event_nseverity].replace('#', ''),\n            summary: params.alert_subject,\n            sections: [\n                {\n                    markdown: 'false',\n                    activityTitle: params.alert_subject,\n                    text: (params.use_default_message.toLowerCase() == 'true')\n                        ? params.alert_message\n                        : params.trigger_description\n                }\n            ],\n            potentialAction: [\n                {\n                    '@type': 'OpenUri',\n                    name: (params.event_source === '0')\n                        ? 'Event Info'\n                        : 'Zabbix Home',\n                    targets: [\n                        {\n                            os: 'default',\n                            uri: (params.event_source === '0')\n                                ? params.zabbix_url + '/tr_events.php?triggerid=' +\n                                    params.trigger_id + '&eventid=' + params.event_id\n                                : params.zabbix_url\n                        }\n                    ]\n                }\n            ]\n        };\n\n    if (params.use_default_message.toLowerCase() !== 'true') {\n        // Problem message.\n        if (params.event_value === '1' && params.event_update_status === '0') {\n            facts.push({\n                name: 'Event time',\n                value: params.event_time + ' ' + params.event_date\n            });\n            facts.push({\n                name: 'Host',\n                value: params.host_name + ' [' + params.host_ip + ']'\n            });\n\n        }\n        // Update message.\n        else if (params.event_update_status === '1') {\n            body.sections[0].text = params.event_update_user + ' ' + params.event_update_action + '.';\n\n            if (params.event_update_message) {\n                body.sections[0].text += '<br>Message:<br>' + params.event_update_message;\n            }\n\n            facts.push({\n                name: 'Event update time',\n                value: params.event_update_time + ' ' + params.event_update_date\n            });\n            facts.push({\n                name: 'Host',\n                value: params.host_name + ' [' + params.host_ip + ']'\n            });\n\n        }\n        // Resolved message.\n        else {\n            facts.push({\n                name: 'Recovery time',\n                value: params.event_recovery_time + ' ' + params.event_recovery_date\n            });\n            facts.push({\n                name: 'Host',\n                value: params.host_name + ' [' + params.host_ip + ']'\n            });\n        }\n\n        if (params.event_severity && params.event_severity !== '{EVENT.SEVERITY}') {\n            facts.push({\n                name: 'Severity',\n                value: params.event_severity\n            });\n        }\n\n\n        if (params.event_opdata && params.event_opdata !== '{EVENT.OPDATA}') {\n            facts.push({\n                name: 'Operational data',\n                value: params.event_opdata\n            });\n        }\n\n        if (params.event_tags && params.event_tags !== '{EVENT.TAGS}') {\n            facts.push({\n                name: 'Event tags',\n                value: params.event_tags\n            });\n        }\n\n        Object.keys(params)\n            .forEach(function (key) {\n                if (key.startsWith('fact_') && params[key] !== '') {\n                    facts.push({\n                        name: key.substring(5),\n                        value: params[key]\n                    });\n                }\n                else if (key.startsWith('openUri_') && params[key] !== '' && !params[key].startsWith('{')) {\n                    body.potentialAction.push({\n                        '@type': 'OpenUri',\n                        name: key.substring(8),\n                        targets: [\n                            {\n                                os: 'default',\n                                uri: params[key]\n                            }\n                        ]\n                    });\n                }\n            });\n        body.sections[0].facts = facts;\n    }\n\n    body.sections[0].text = body.sections[0].text.replace(/(?:\\r\\n|\\r|\\n)/g, '<br>');\n\n    request.addHeader('Content-Type: application/json');\n\n    if (typeof params.HTTPProxy === 'string' && params.HTTPProxy !== '') {\n        request.setProxy(params.HTTPProxy);\n    }\n\n    Zabbix.log(4, '[ MS Teams Webhook ] JSON: ' + JSON.stringify(body));\n\n    var response = request.post(params.teams_endpoint, JSON.stringify(body));\n\n    Zabbix.log(4, '[ MS Teams Webhook ] Response: ' + response);\n\n    if (response === '1') {\n        return 'OK';\n    }\n    else {\n        Zabbix.log(4, '[ MS Teams Webhook ] FAILED with response: ' + response);\n        throw response;\n    }\n}\ncatch (error) {\n    Zabbix.log(3, '[ MS Teams Webhook ] ERROR: ' + error);\n    throw 'Sending failed: ' + error;\n}",
+                "message_templates": [
+                    {
+                        "event_source": "TRIGGERS",
+                        "operation_mode": "PROBLEM",
+                        "subject": "Problem: {EVENT.NAME}",
+                        "message": "Problem started at {EVENT.TIME} on {EVENT.DATE}\nProblem name: {EVENT.NAME}\nEvent Acknowledged: {EVENT.ACK.STATUS}\nSeverity: {EVENT.SEVERITY}\nOperational data: {EVENT.OPDATA}\nOriginal problem ID: {EVENT.ID}\nTrigger URL: {TRIGGER.URL}\n\nItem Details:\nItem: {ITEM.KEY1}\nItem Value: {ITEM.LASTVALUE}\n\nHost Details\nHost Name: {HOST.NAME}\nHost IP: {HOST.IP}\n"
+                    },
+                    {
+                        "event_source": "TRIGGERS",
+                        "operation_mode": "RECOVERY",
+                        "subject": "Resolved: {EVENT.NAME}",
+                        "message": "Problem has been resolved in {EVENT.DURATION} at {EVENT.RECOVERY.TIME} on {EVENT.RECOVERY.DATE}\nProblem name: {EVENT.NAME}\nSeverity: {EVENT.SEVERITY}\nOriginal problem ID: {EVENT.ID}\nTrigger URL: {TRIGGER.URL}\n\nItem Details:\nItem: {ITEM.KEY1}\nItem Value: {ITEM.LASTVALUE}\n\nHost Details\nHost Name: {HOST.NAME}\nHost IP: {HOST.IP}"
+                    },
+                    {
+                        "event_source": "TRIGGERS",
+                        "operation_mode": "UPDATE",
+                        "subject": "Updated problem: {EVENT.NAME}",
+                        "message": "{USER.FULLNAME} {EVENT.UPDATE.ACTION} problem at {EVENT.UPDATE.DATE} {EVENT.UPDATE.TIME}.\n{EVENT.UPDATE.MESSAGE}\n\nCurrent problem status is {EVENT.STATUS}, acknowledged: {EVENT.ACK.STATUS}."
+                    },
+                    {
+                        "event_source": "DISCOVERY",
+                        "operation_mode": "PROBLEM",
+                        "subject": "Discovery: {DISCOVERY.DEVICE.STATUS} {DISCOVERY.DEVICE.IPADDRESS}",
+                        "message": "Discovery rule: {DISCOVERY.RULE.NAME}\n\nDevice IP: {DISCOVERY.DEVICE.IPADDRESS}\nDevice DNS: {DISCOVERY.DEVICE.DNS}\nDevice status: {DISCOVERY.DEVICE.STATUS}\nDevice uptime: {DISCOVERY.DEVICE.UPTIME}\n\nDevice service name: {DISCOVERY.SERVICE.NAME}\nDevice service port: {DISCOVERY.SERVICE.PORT}\nDevice service status: {DISCOVERY.SERVICE.STATUS}\nDevice service uptime: {DISCOVERY.SERVICE.UPTIME}"
+                    },
+                    {
+                        "event_source": "AUTOREGISTRATION",
+                        "operation_mode": "PROBLEM",
+                        "subject": "Autoregistration: {HOST.HOST}",
+                        "message": "Host name: {HOST.HOST}\nHost IP: {HOST.IP}\nAgent port: {HOST.PORT}"
+                    },
+                    {
+                        "event_source": "SERVICE",
+                        "operation_mode": "PROBLEM",
+                        "subject": "Service \"{SERVICE.NAME}\" problem: {EVENT.NAME}",
+                        "message": "Service problem started at {EVENT.TIME} on {EVENT.DATE}\nService problem name: {EVENT.NAME}\nService: {SERVICE.NAME}\nSeverity: {EVENT.SEVERITY}\nOriginal problem ID: {EVENT.ID}\nService description: {SERVICE.DESCRIPTION}\n\n{SERVICE.ROOTCAUSE}"
+                    },
+                    {
+                        "event_source": "SERVICE",
+                        "operation_mode": "RECOVERY",
+                        "subject": "Service \"{SERVICE.NAME}\" resolved in {EVENT.DURATION}: {EVENT.NAME}",
+                        "message": "Service \"{SERVICE.NAME}\" has been resolved at {EVENT.RECOVERY.TIME} on {EVENT.RECOVERY.DATE}\nProblem name: {EVENT.NAME}\nProblem duration: {EVENT.DURATION}\nSeverity: {EVENT.SEVERITY}\nOriginal problem ID: {EVENT.ID}\nService description: {SERVICE.DESCRIPTION}"
+                    },
+                    {
+                        "event_source": "SERVICE",
+                        "operation_mode": "UPDATE",
+                        "subject": "Changed \"{SERVICE.NAME}\" service status to {EVENT.UPDATE.SEVERITY} in {EVENT.AGE}",
+                        "message": "Changed \"{SERVICE.NAME}\" service status to {EVENT.UPDATE.SEVERITY} at {EVENT.UPDATE.DATE} {EVENT.UPDATE.TIME}.\nCurrent problem age is {EVENT.AGE}.\nService description: {SERVICE.DESCRIPTION}\n\n{SERVICE.ROOTCAUSE}"
+                    }
+                ]
+            }
+        ]
+    }
+}
