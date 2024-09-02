@@ -1,0 +1,421 @@
+{
+    "zabbix_export": {
+        "version": "7.0",
+        "template_groups": [
+            {
+                "uuid": "36702aea77394894b1e8c51c65151ffb",
+                "name": "lin"
+            }
+        ],
+        "templates": [
+            {
+                "uuid": "88ca112d09c44efc97a7350e354e69da",
+                "template": "test",
+                "name": "test",
+                "groups": [
+                    {
+                        "name": "lin"
+                    }
+                ],
+                "items": [
+                    {
+                        "uuid": "9249219943e94fcc9a584e2991ea5b3c",
+                        "name": "zabbix-tcp-service",
+                        "type": "ZABBIX_ACTIVE",
+                        "key": "net.tcp.service[tcp,,10050]"
+                    },
+                    {
+                        "uuid": "d03aeb5d5ac24d08beb548565f1535b6",
+                        "name": "SSL_Expiration",
+                        "type": "ZABBIX_ACTIVE",
+                        "key": "sslcertexpire[nanakwebsolutions.com]",
+                        "delay": "10s",
+                        "triggers": [
+                            {
+                                "uuid": "6e24dfeff39041fc9b595eb39ae007b7",
+                                "expression": "last(/test/sslcertexpire[nanakwebsolutions.com])<=7",
+                                "name": "SSL Expire",
+                                "priority": "HIGH",
+                                "type": "MULTIPLE"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "cd2f1bbf15b143a7a82592379c2d5292",
+                        "name": "CPU Load",
+                        "type": "ZABBIX_ACTIVE",
+                        "key": "system.cpu.load[all,avg1]",
+                        "delay": "5s",
+                        "value_type": "FLOAT"
+                    },
+                    {
+                        "uuid": "6a11b0af02a5489491e360c8fbb8d56a",
+                        "name": "Disk-Used",
+                        "type": "ZABBIX_ACTIVE",
+                        "key": "vfs.fs.size[/,pused]",
+                        "value_type": "FLOAT"
+                    },
+                    {
+                        "uuid": "9044091ee373458b9a0881413b05fb88",
+                        "name": "Memory available in %",
+                        "type": "ZABBIX_ACTIVE",
+                        "key": "vm.memory.size[pavailable]",
+                        "units": "%"
+                    },
+                    {
+                        "uuid": "259bbfe318364d32b8265310a5237dd2",
+                        "name": "Memory Utilization",
+                        "type": "DEPENDENT",
+                        "key": "vm.memory.utilization",
+                        "units": "%",
+                        "master_item": {
+                            "key": "vm.memory.size[pavailable]"
+                        }
+                    },
+                    {
+                        "uuid": "dd1b2d6fd632406195c579f61af5d01d",
+                        "name": "zabbix-agent-status",
+                        "type": "ZABBIX_ACTIVE",
+                        "key": "zabbix-agent.status[sshd]",
+                        "delay": "10s",
+                        "value_type": "TEXT",
+                        "triggers": [
+                            {
+                                "uuid": "1328e590fe784f10824e2c477cab8ef5",
+                                "expression": "last(/test/zabbix-agent.status[sshd],#1)<>\"active\"",
+                                "name": "service-check",
+                                "priority": "HIGH",
+                                "type": "MULTIPLE"
+                            }
+                        ]
+                    }
+                ],
+                "httptests": [
+                    {
+                        "uuid": "b31a6a7787d7486ba2a32110dec516e4",
+                        "name": "nanakwebsolutions",
+                        "delay": "10s",
+                        "verify_peer": "YES",
+                        "verify_host": "YES",
+                        "steps": [
+                            {
+                                "name": "Status-Check",
+                                "url": "https://3.239.92.115/zabbix",
+                                "follow_redirects": "NO"
+                            }
+                        ]
+                    }
+                ],
+                "dashboards": [
+                    {
+                        "uuid": "08b644bc67844e09b8a0bf839f123dff",
+                        "name": "Default",
+                        "display_period": "10",
+                        "pages": [
+                            {
+                                "widgets": [
+                                    {
+                                        "type": "svggraph",
+                                        "name": "CPU Load",
+                                        "width": "36",
+                                        "height": "5",
+                                        "fields": [
+                                            {
+                                                "type": "STRING",
+                                                "name": "ds.0.color",
+                                                "value": "FF465C"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "ds.0.items.0",
+                                                "value": "CPU Load"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "reference",
+                                                "value": "WMEFS"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "rf_rate",
+                                                "value": "10"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "righty",
+                                                "value": "0"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "piechart",
+                                        "name": "Disk Used",
+                                        "y": "5",
+                                        "width": "18",
+                                        "height": "5",
+                                        "fields": [
+                                            {
+                                                "type": "STRING",
+                                                "name": "ds.0.color",
+                                                "value": "FF465C"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "ds.0.items.0",
+                                                "value": "Disk-Used"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "rf_rate",
+                                                "value": "10"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "svggraph",
+                                        "name": "TCP Port",
+                                        "y": "10",
+                                        "width": "36",
+                                        "height": "5",
+                                        "fields": [
+                                            {
+                                                "type": "STRING",
+                                                "name": "ds.0.color",
+                                                "value": "FF465C"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "ds.0.items.0",
+                                                "value": "zabbix-tcp-service"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "reference",
+                                                "value": "ZNUVP"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "rf_rate",
+                                                "value": "10"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "righty",
+                                                "value": "0"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "clock",
+                                        "x": "18",
+                                        "y": "5",
+                                        "width": "18",
+                                        "height": "5",
+                                        "fields": [
+                                            {
+                                                "type": "STRING",
+                                                "name": "bg_color",
+                                                "value": "E91E63"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "clock_type",
+                                                "value": "1"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "rf_rate",
+                                                "value": "10"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "time_bold",
+                                                "value": "1"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "time_color",
+                                                "value": "F9A825"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "svggraph",
+                                        "name": "Memory Utilization",
+                                        "x": "36",
+                                        "width": "36",
+                                        "height": "5",
+                                        "fields": [
+                                            {
+                                                "type": "STRING",
+                                                "name": "ds.0.color",
+                                                "value": "FF465C"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "ds.0.items.0",
+                                                "value": "Memory Utilization"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "reference",
+                                                "value": "KHMJK"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "rf_rate",
+                                                "value": "10"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "righty",
+                                                "value": "0"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "svggraph",
+                                        "name": "SSL Expiration",
+                                        "x": "36",
+                                        "y": "5",
+                                        "width": "36",
+                                        "height": "5",
+                                        "fields": [
+                                            {
+                                                "type": "STRING",
+                                                "name": "ds.0.color",
+                                                "value": "FF465C"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "ds.0.items.0",
+                                                "value": "SSL_Expiration"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "reference",
+                                                "value": "WRLQB"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "rf_rate",
+                                                "value": "10"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "righty",
+                                                "value": "0"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "svggraph",
+                                        "x": "36",
+                                        "y": "10",
+                                        "width": "36",
+                                        "height": "5",
+                                        "fields": [
+                                            {
+                                                "type": "STRING",
+                                                "name": "ds.0.color",
+                                                "value": "FF465C"
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "ds.0.items.0",
+                                                "value": "Download speed for scenario \"nanakwebsolutions\"."
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "ds.0.items.1",
+                                                "value": "Download speed for step \"Status-Check\" of scenario \"nanakwebsolutions\"."
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "ds.0.items.2",
+                                                "value": "Failed step of scenario \"nanakwebsolutions\"."
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "ds.0.items.3",
+                                                "value": "Response code for step \"Status-Check\" of scenario \"nanakwebsolutions\"."
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "ds.0.items.4",
+                                                "value": "Response time for step \"Status-Check\" of scenario \"nanakwebsolutions\"."
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "reference",
+                                                "value": "BJBBJ"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "rf_rate",
+                                                "value": "10"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "righty",
+                                                "value": "0"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "graphs": [
+            {
+                "uuid": "dbc793f7cec44af0acb3b0afe364caaf",
+                "name": "CPU Load",
+                "graph_items": [
+                    {
+                        "color": "1A7C11",
+                        "calc_fnc": "MAX",
+                        "item": {
+                            "host": "test",
+                            "key": "system.cpu.load[all,avg1]"
+                        }
+                    }
+                ]
+            },
+            {
+                "uuid": "53b496f130304a56b267fa1a312b73ae",
+                "name": "Disk-Used",
+                "yaxismax": "0",
+                "show_work_period": "NO",
+                "show_triggers": "NO",
+                "type": "PIE",
+                "graph_items": [
+                    {
+                        "color": "1A7C11",
+                        "calc_fnc": "MIN",
+                        "item": {
+                            "host": "test",
+                            "key": "vfs.fs.size[/,pused]"
+                        }
+                    }
+                ]
+            },
+            {
+                "uuid": "5123e1bf80cd4e56a0c377d4541daa20",
+                "name": "SSL Expiration",
+                "graph_items": [
+                    {
+                        "color": "1A7C11",
+                        "calc_fnc": "ALL",
+                        "item": {
+                            "host": "test",
+                            "key": "sslcertexpire[nanakwebsolutions.com]"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

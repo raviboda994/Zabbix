@@ -1,0 +1,302 @@
+{
+    "zabbix_export": {
+        "version": "7.0",
+        "template_groups": [
+            {
+                "uuid": "a571c0d144b14fd4a87a9d9b2aa9fce6",
+                "name": "Templates/WebServer Monitoring"
+            }
+        ],
+        "templates": [
+            {
+                "uuid": "7f639b35cf8c45b483cc5ce9a5e8369d",
+                "template": "Website Monitoring",
+                "name": "Website Monitoring",
+                "groups": [
+                    {
+                        "name": "Templates/WebServer Monitoring"
+                    }
+                ],
+                "discovery_rules": [
+                    {
+                        "uuid": "c3d560980a1848f99f020221094258a8",
+                        "name": "Discover Website",
+                        "key": "discovery.websites[{$WEBSITES_TO_CHECK}]",
+                        "item_prototypes": [
+                            {
+                                "uuid": "bda354f2b92b423e8c32ecb8f8e07fcb",
+                                "name": "{#WEBSITE} SSL Expiry",
+                                "key": "sslcertexpire[{#WEBSITE}]",
+                                "delay": "10s",
+                                "timeout": "10s",
+                                "trigger_prototypes": [
+                                    {
+                                        "uuid": "fea5f31ea2b04effa4baa1476f426fc6",
+                                        "expression": "last(/Website Monitoring/sslcertexpire[{#WEBSITE}])<=7",
+                                        "name": "{#WEBSITE} SSL is Expiring in 7 days",
+                                        "priority": "HIGH"
+                                    },
+                                    {
+                                        "uuid": "77cc3b1761694deca42c240453c5b303",
+                                        "expression": "last(/Website Monitoring/sslcertexpire[{#WEBSITE}])<30",
+                                        "name": "{#WEBSITE} SSL is Expiring Soon",
+                                        "priority": "WARNING"
+                                    }
+                                ]
+                            },
+                            {
+                                "uuid": "1e6185e2e9a54408865139d3759bd87f",
+                                "name": "{#WEBSITE} HTTP Status Code",
+                                "type": "DEPENDENT",
+                                "key": "web.http.status.code[{#WEBSITE}]",
+                                "preprocessing": [
+                                    {
+                                        "type": "JSONPATH",
+                                        "parameters": [
+                                            "$[\"http_code\"]"
+                                        ]
+                                    }
+                                ],
+                                "master_item": {
+                                    "key": "web.monitoring.data[{#WEBSITE}]"
+                                },
+                                "trigger_prototypes": [
+                                    {
+                                        "uuid": "e914fbcc683642da956b7cefd52a43ba",
+                                        "expression": "last(/Website Monitoring/web.http.status.code[{#WEBSITE}])<>200",
+                                        "name": "{#WEBSITE} Status Code Alert",
+                                        "priority": "AVERAGE"
+                                    }
+                                ]
+                            },
+                            {
+                                "uuid": "e0cfd7430f204d87b1b239f2bcefbc2b",
+                                "name": "{#WEBSITE} Monitoring Data",
+                                "key": "web.monitoring.data[{#WEBSITE}]",
+                                "value_type": "TEXT",
+                                "timeout": "10s"
+                            },
+                            {
+                                "uuid": "da8776711f484e43a02e8def05d2041e",
+                                "name": "{#WEBSITE} Response Time (ms)",
+                                "type": "DEPENDENT",
+                                "key": "web.response.time[{#WEBSITE}]",
+                                "preprocessing": [
+                                    {
+                                        "type": "JSONPATH",
+                                        "parameters": [
+                                            "$[\"response_time_ms\"]"
+                                        ]
+                                    }
+                                ],
+                                "master_item": {
+                                    "key": "web.monitoring.data[{#WEBSITE}]"
+                                },
+                                "trigger_prototypes": [
+                                    {
+                                        "uuid": "0fe9af36fbba4e0381532cb450bfa6ac",
+                                        "expression": "last(/Website Monitoring/web.response.time[{#WEBSITE}])>{$WEBSITES_MAX_RESP_TIME}",
+                                        "name": "{#WEBSITE} Response Time Alert",
+                                        "priority": "WARNING"
+                                    }
+                                ]
+                            },
+                            {
+                                "uuid": "eb1278b5a53845ea9a6697bac764cfd1",
+                                "name": "{#WEBSITE} Uptime Status",
+                                "type": "DEPENDENT",
+                                "key": "web.uptime.status[{#WEBSITE}]",
+                                "valuemap": {
+                                    "name": "Website Status"
+                                },
+                                "preprocessing": [
+                                    {
+                                        "type": "JSONPATH",
+                                        "parameters": [
+                                            "$[\"uptime_status\"]"
+                                        ]
+                                    }
+                                ],
+                                "master_item": {
+                                    "key": "web.monitoring.data[{#WEBSITE}]"
+                                },
+                                "trigger_prototypes": [
+                                    {
+                                        "uuid": "b6a8e378789a4c7295fb3bc782cea0cc",
+                                        "expression": "last(/Website Monitoring/web.uptime.status[{#WEBSITE}])=0",
+                                        "name": "{#WEBSITE} is DOWN",
+                                        "priority": "HIGH"
+                                    }
+                                ]
+                            }
+                        ],
+                        "graph_prototypes": [
+                            {
+                                "uuid": "e381e118a7ba48bd9ef0a24e52ae6bec",
+                                "name": "{#WEBSITE} Response Time",
+                                "graph_items": [
+                                    {
+                                        "color": "1A7C11",
+                                        "calc_fnc": "ALL",
+                                        "item": {
+                                            "host": "Website Monitoring",
+                                            "key": "web.response.time[{#WEBSITE}]"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "uuid": "83ed937fef7746e09c79d0e074677011",
+                                "name": "{#WEBSITE} SSL Expiry",
+                                "graph_items": [
+                                    {
+                                        "color": "1A7C11",
+                                        "calc_fnc": "ALL",
+                                        "item": {
+                                            "host": "Website Monitoring",
+                                            "key": "sslcertexpire[{#WEBSITE}]"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "uuid": "6e6c46422a2e4853af301b55183ad0f0",
+                                "name": "{#WEBSITE} Status Code",
+                                "graph_items": [
+                                    {
+                                        "color": "1A7C11",
+                                        "calc_fnc": "ALL",
+                                        "item": {
+                                            "host": "Website Monitoring",
+                                            "key": "web.http.status.code[{#WEBSITE}]"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "uuid": "363e77b2d6344f8ca5497d772f71f94c",
+                                "name": "{#WEBSITE} Uptime",
+                                "graph_items": [
+                                    {
+                                        "color": "1A7C11",
+                                        "calc_fnc": "ALL",
+                                        "item": {
+                                            "host": "Website Monitoring",
+                                            "key": "web.uptime.status[{#WEBSITE}]"
+                                        }
+                                    }
+                                ]
+                            }
+                        ],
+                        "timeout": "20s"
+                    }
+                ],
+                "tags": [
+                    {
+                        "tag": "Template",
+                        "value": "Website Monitoring"
+                    }
+                ],
+                "macros": [
+                    {
+                        "macro": "{$WEBSITES_MAX_RESP_TIME}",
+                        "value": "500"
+                    },
+                    {
+                        "macro": "{$WEBSITES_TO_CHECK}"
+                    }
+                ],
+                "dashboards": [
+                    {
+                        "uuid": "f2226a6bf38a4fbd8db13ed6968935cb",
+                        "name": "Website Monitoring",
+                        "pages": [
+                            {
+                                "widgets": [
+                                    {
+                                        "type": "graphprototype",
+                                        "width": "71",
+                                        "height": "5",
+                                        "fields": [
+                                            {
+                                                "type": "GRAPH_PROTOTYPE",
+                                                "name": "graphid.0",
+                                                "value": {
+                                                    "host": "Website Monitoring",
+                                                    "name": "{#WEBSITE} Uptime"
+                                                }
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "reference",
+                                                "value": "GSBXA"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "graphprototype",
+                                        "y": "5",
+                                        "width": "71",
+                                        "height": "5",
+                                        "fields": [
+                                            {
+                                                "type": "GRAPH_PROTOTYPE",
+                                                "name": "graphid.0",
+                                                "value": {
+                                                    "host": "Website Monitoring",
+                                                    "name": "{#WEBSITE} Response Time"
+                                                }
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "reference",
+                                                "value": "JRLZE"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "graphprototype",
+                                        "y": "10",
+                                        "width": "72",
+                                        "height": "5",
+                                        "fields": [
+                                            {
+                                                "type": "GRAPH_PROTOTYPE",
+                                                "name": "graphid.0",
+                                                "value": {
+                                                    "host": "Website Monitoring",
+                                                    "name": "{#WEBSITE} Status Code"
+                                                }
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "reference",
+                                                "value": "BGAZC"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "valuemaps": [
+                    {
+                        "uuid": "04d6230602974475b7ca19cae8d78765",
+                        "name": "Website Status",
+                        "mappings": [
+                            {
+                                "value": "1",
+                                "newvalue": "UP"
+                            },
+                            {
+                                "value": "0",
+                                "newvalue": "DOWN"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

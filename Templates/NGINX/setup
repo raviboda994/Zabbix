@@ -1,0 +1,21 @@
+Add below in nginx config file
+
+      location /basic_status {
+        stub_status;
+        allow 127.0.0.1;
+        allow ::1;
+        deny all;
+        }
+
+
+
+Add uptime.sh and ssl_expiration.sh script in /etc/zabbix/script/ and give chmod +x permission
+
+
+
+
+add nginx.conf in the /etc/zabbix/zabbix_agent.d/
+
+
+
+restart the zabbix_agent

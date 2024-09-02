@@ -1,0 +1,108 @@
+{
+    "zabbix_export": {
+        "version": "7.0",
+        "template_groups": [
+            {
+                "uuid": "36702aea77394894b1e8c51c65151ffb",
+                "name": "lin"
+            }
+        ],
+        "templates": [
+            {
+                "uuid": "88ca112d09c44efc97a7350e354e69da",
+                "template": "test",
+                "name": "test",
+                "groups": [
+                    {
+                        "name": "lin"
+                    }
+                ],
+                "items": [
+                    {
+                        "uuid": "cd2f1bbf15b143a7a82592379c2d5292",
+                        "name": "CPU Load",
+                        "type": "ZABBIX_ACTIVE",
+                        "key": "system.cpu.load[all,avg1]",
+                        "delay": "5s",
+                        "value_type": "FLOAT"
+                    },
+                    {
+                        "uuid": "6a11b0af02a5489491e360c8fbb8d56a",
+                        "name": "Disk-Used",
+                        "type": "ZABBIX_ACTIVE",
+                        "key": "vfs.fs.size[/,pused]",
+                        "value_type": "FLOAT"
+                    },
+                    {
+                        "uuid": "9044091ee373458b9a0881413b05fb88",
+                        "name": "Memory available in %",
+                        "type": "ZABBIX_ACTIVE",
+                        "key": "vm.memory.size[pavailable]",
+                        "units": "%"
+                    },
+                    {
+                        "uuid": "259bbfe318364d32b8265310a5237dd2",
+                        "name": "Memory Utilization",
+                        "type": "DEPENDENT",
+                        "key": "vm.memory.utilization",
+                        "units": "%",
+                        "master_item": {
+                            "key": "vm.memory.size[pavailable]"
+                        }
+                    },
+                    {
+                        "uuid": "dd1b2d6fd632406195c579f61af5d01d",
+                        "name": "zabbix-agent-status",
+                        "type": "ZABBIX_ACTIVE",
+                        "key": "zabbix-agent.status[sshd]",
+                        "delay": "10s",
+                        "value_type": "TEXT",
+                        "triggers": [
+                            {
+                                "uuid": "1328e590fe784f10824e2c477cab8ef5",
+                                "expression": "last(/test/zabbix-agent.status[sshd],#1)<>\"active\"",
+                                "name": "service-check",
+                                "priority": "HIGH",
+                                "type": "MULTIPLE"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "graphs": [
+            {
+                "uuid": "dbc793f7cec44af0acb3b0afe364caaf",
+                "name": "CPU Load",
+                "graph_items": [
+                    {
+                        "color": "1A7C11",
+                        "calc_fnc": "MAX",
+                        "item": {
+                            "host": "test",
+                            "key": "system.cpu.load[all,avg1]"
+                        }
+                    }
+                ]
+            },
+            {
+                "uuid": "53b496f130304a56b267fa1a312b73ae",
+                "name": "Disk-Used",
+                "yaxismax": "0",
+                "show_work_period": "NO",
+                "show_triggers": "NO",
+                "type": "PIE",
+                "graph_items": [
+                    {
+                        "color": "1A7C11",
+                        "calc_fnc": "MIN",
+                        "item": {
+                            "host": "test",
+                            "key": "vfs.fs.size[/,pused]"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

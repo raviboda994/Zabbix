@@ -1,0 +1,133 @@
+{
+    "zabbix_export": {
+        "version": "7.0",
+        "template_groups": [
+            {
+                "uuid": "a571c0d144b14fd4a87a9d9b2aa9fce6",
+                "name": "Templates/WebServer Monitoring"
+            }
+        ],
+        "templates": [
+            {
+                "uuid": "18943a3f67fb46db904f23e918c29763",
+                "template": "Port Check",
+                "name": "Port Check",
+                "groups": [
+                    {
+                        "name": "Templates/WebServer Monitoring"
+                    }
+                ],
+                "discovery_rules": [
+                    {
+                        "uuid": "3f19765e1bf74796ba917d87f1d1096b",
+                        "name": "Port Discovery",
+                        "key": "discovery.ports[{$PORTS_TO_CHECK}]",
+                        "delay": "10s",
+                        "item_prototypes": [
+                            {
+                                "uuid": "77426bfaf8d443dd9ca5726657e860e7",
+                                "name": "Port {#PORT} Status",
+                                "type": "ZABBIX_ACTIVE",
+                                "key": "net.tcp.listen[{#PORT}]",
+                                "delay": "10s",
+                                "valuemap": {
+                                    "name": "Port Status"
+                                },
+                                "tags": [
+                                    {
+                                        "tag": "Template",
+                                        "value": "Port Check"
+                                    }
+                                ],
+                                "trigger_prototypes": [
+                                    {
+                                        "uuid": "331a6b84f4d24b52a5504e536b4b167a",
+                                        "expression": "last(/Port Check/net.tcp.listen[{#PORT}])=0",
+                                        "name": "{#PORT} is DOWN",
+                                        "priority": "HIGH"
+                                    }
+                                ]
+                            }
+                        ],
+                        "graph_prototypes": [
+                            {
+                                "uuid": "019f28d5a6bc4b22b7a47b924f05f1c2",
+                                "name": "Port {#PORT} Status",
+                                "graph_items": [
+                                    {
+                                        "color": "1A7C11",
+                                        "calc_fnc": "ALL",
+                                        "item": {
+                                            "host": "Port Check",
+                                            "key": "net.tcp.listen[{#PORT}]"
+                                        }
+                                    }
+                                ]
+                            }
+                        ],
+                        "timeout": "20s"
+                    }
+                ],
+                "macros": [
+                    {
+                        "macro": "{$PORTS_TO_CHECK}",
+                        "value": "80,443"
+                    }
+                ],
+                "dashboards": [
+                    {
+                        "uuid": "08a5b873b00f4dcdbc990cd33eeb69d9",
+                        "name": "Port Status",
+                        "pages": [
+                            {
+                                "widgets": [
+                                    {
+                                        "type": "graphprototype",
+                                        "width": "72",
+                                        "height": "10",
+                                        "fields": [
+                                            {
+                                                "type": "GRAPH_PROTOTYPE",
+                                                "name": "graphid.0",
+                                                "value": {
+                                                    "host": "Port Check",
+                                                    "name": "Port {#PORT} Status"
+                                                }
+                                            },
+                                            {
+                                                "type": "STRING",
+                                                "name": "reference",
+                                                "value": "IISJE"
+                                            },
+                                            {
+                                                "type": "INTEGER",
+                                                "name": "rows",
+                                                "value": "2"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "valuemaps": [
+                    {
+                        "uuid": "d9f71a05aa6748319f97ae93b8da699d",
+                        "name": "Port Status",
+                        "mappings": [
+                            {
+                                "value": "0",
+                                "newvalue": "DOWN"
+                            },
+                            {
+                                "value": "1",
+                                "newvalue": "UP"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
