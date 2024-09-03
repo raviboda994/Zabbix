@@ -11,7 +11,7 @@ fi
 
 # Check if the protocol is https
 if [ "$protocol" != "https" ]; then
-    echo "Protocol is not https. No SSL check required."
+    # echo "Protocol is not https. No SSL check required."
     echo 0
     exit 1
 fi
