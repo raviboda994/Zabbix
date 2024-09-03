@@ -1,11 +1,19 @@
 #!/bin/bash
 
-# Extract the domain name from the URL argument
+# Extract the protocol and domain name from the URL argument
+protocol=$(echo "$1" | awk -F: '{print $1}')
 domain=$(echo "$1" | awk -F/ '{print $3}')
 
 # If no domain is found, assume the entire argument is the domain
 if [ -z "$domain" ]; then
     domain="$1"
+fi
+
+# Check if the protocol is https
+if [ "$protocol" != "https" ]; then
+    echo "Protocol is not https. No SSL check required."
+    echo 0
+    exit 1
 fi
 
 # Attempt to retrieve SSL certificate expiration date
