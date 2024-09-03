@@ -4,7 +4,7 @@
 website_url="$1"
 
 # Perform an HTTP request and measure the response time in seconds
-response=$(curl -o /dev/null -s -w "%{http_code} %{time_total}\n" "https://$website_url")
+response=$(curl -o /dev/null -s -w "%{http_code} %{time_total}\n" "$website_url")
 
 # Extract HTTP status code and response time
 http_code=$(echo "$response" | awk '{print $1}')
