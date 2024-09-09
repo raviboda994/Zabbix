@@ -11,6 +11,33 @@ add this in your main page site
 
 
 
+## For Redhat/CentOS
+Install bc
+yum install bc
+
+## apache config file for Redhat/CentOS
+LoadModule status_module modules/mod_status.so
+
+<VirtualHost *:80>
+
+<Location "/server-status">
+  SetHandler server-status
+  Order Deny,Allow
+  Deny from all
+  Allow from 127.0.0.1
+  Allow from ::1
+</Location>
+
+</VirtualHost>
+
+
+## if redirected to https add below condition before the https redirect
+RewriteCond %{REQUEST_URI} !^/server-status$
+
+
+
+
+
 Add apache.conf in the /etc/zabbix/zabbix_agent.d/
 
 add sslcert_expiration.sh in /etc/zabbix/scripts/sslcert_expiration.sh and give chmod +x permission
