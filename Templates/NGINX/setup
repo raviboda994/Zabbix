@@ -7,6 +7,9 @@ Add below in nginx config file
         deny all;
         }
 
+For testing 
+curl -g -6 http://[::1]/basic_status
+curl http://127.0.0.1/basic_status
 
 
 Add uptime.sh and ssl_expiration.sh script in /etc/zabbix/script/ and give chmod +x permission

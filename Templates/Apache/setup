@@ -1,4 +1,4 @@
-a2enmod mod_status
+a2enmod status
 
 
 
@@ -15,7 +15,7 @@ add this in your main page site
 Install bc
 yum install bc
 
-## apache config file for Redhat/CentOS
+## apache config file for Redhat/CentOS/oracle
 LoadModule status_module modules/mod_status.so
 
 <VirtualHost *:80>
@@ -30,11 +30,38 @@ LoadModule status_module modules/mod_status.so
 
 </VirtualHost>
 
+## apache config file for Redhat/CentOS/oracle with reverse proxy on
+LoadModule status_module modules/mod_status.so
 
-## if redirected to https add below condition before the https redirect
+<VirtualHost *:80>
+<Location /server-status>
+  SetHandler server-status
+  Order Deny,Allow
+  Deny from all
+  Allow from 127.0.0.1
+  Allow from ::1
+  ProxyPass "!"
+</Location>
+
+</VirtualHost>
+
+## if redirected to https add below condition before the https redirect/rewrite
 RewriteCond %{REQUEST_URI} !^/server-status$
 
 
+
+## For apache 2.4+
+
+LoadModule status_module modules/mod_status.so
+
+<VirtualHost 127.0.0.1:80>
+
+<Location "/server-status">
+    SetHandler server-status
+    Require ip 127.0.0.1
+    Require ip ::1
+</Location>
+</VirtualHost>
 
 
 
