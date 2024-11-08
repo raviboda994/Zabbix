@@ -1,0 +1,15 @@
+<b></b>Problem started at {EVENT.TIME} on {EVENT.DATE}</b><br>
+<b>Problem name:</b> {EVENT.NAME}<br>
+<b>Event Acknowledged:</b> {EVENT.ACK.STATUS}<br>
+<b>Severity:</b> {EVENT.SEVERITY}<br>
+<b>Operational data:</b> {EVENT.OPDATA}<br>
+<b>Original problem ID:</b> {EVENT.ID}<br>
+<b>Trigger URL:</b> {TRIGGER.URL}<br>
+<br>
+<b>Item Details:</b><br>
+<b>Item:</b> {ITEM.KEY1}<br>
+<b>Item Value:</b> {ITEM.LASTVALUE}<br>
+<br>
+<b>Host Details</b><br>
+<b>Host Name:</b> {HOST.NAME}<br>
+<b>Host IP:</b> {HOST.IP}<br>
